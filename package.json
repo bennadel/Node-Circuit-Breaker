@@ -2,13 +2,16 @@
   "name": "node_circuit_breaker",
   "version": "0.0.1",
   "description": "A flexible circuit breaker for Node.js.",
-  "main": "index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "mocha"
   },
   "keywords": [
     "circuit",
-    "breaker"
+    "breaker",
+    "circuit breaker",
+    "availability",
+    "reliability"
   ],
   "author": "Ben Nadel",
   "license": "ISC",

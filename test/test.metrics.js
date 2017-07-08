@@ -3,13 +3,13 @@
 var expect = require( "chai" ).expect;
 
 // Require the application modules.
-var Metrics = require( "../lib/Metrics" );
+var Metrics = require( "../lib/metrics/Metrics" );
 var StaticClock = require( "../lib/clock/StaticClock" );
 
 // ----------------------------------------------------------------------------------- //
 // ----------------------------------------------------------------------------------- //
 
-describe( "Testing lib.Metrics", function() {
+describe( "Testing lib.metrics.Metrics", function() {
 	it( "should aggregate metrics within the given rolling window.", function() {
 
 		var bucketCount = 2;

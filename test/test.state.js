@@ -4,7 +4,7 @@ var expect = require( "chai" ).expect;
 
 // Require the application modules.
 var InMemoryMonitor = require( "../lib/monitor/InMemoryMonitor" );
-var Metrics = require( "../lib/Metrics" );
+var Metrics = require( "../lib/metrics/Metrics" );
 var State = require( "../lib/state/State" );
 var StaticClock = require( "../lib/clock/StaticClock" );
 
@@ -350,7 +350,7 @@ describe( "Testing lib.state.State", function() {
 
 	});
 
-	it( "it shouldn't fail (on error) until volume threshold is met.", function() {
+	it( "shouldn't fail (on error) until volume threshold is met.", function() {
 
 		// Get just up to the volume threshold so the failure can be applied after.
 		for ( var i = 0 ; i < ( volumeThreshold - 1 ) ; i++ ) {
@@ -369,7 +369,7 @@ describe( "Testing lib.state.State", function() {
 		
 	});
 
-	it( "it shouldn't fail (on timeout) until volume threshold is met.", function() {
+	it( "shouldn't fail (on timeout) until volume threshold is met.", function() {
 
 		// Get just up to the volume threshold so the failure can be applied after.
 		for ( var i = 0 ; i < ( volumeThreshold - 1 ) ; i++ ) {
@@ -388,7 +388,7 @@ describe( "Testing lib.state.State", function() {
 		
 	});
 
-	it( "it should wait until success to close unhealthy circuit.", function() {
+	it( "should wait until success to close unhealthy circuit.", function() {
 
 		for ( var i = 0 ; i < volumeThreshold ; i++ ) {
 
