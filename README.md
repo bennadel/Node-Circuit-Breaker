@@ -32,18 +32,18 @@ var circuitBreaker = CircuitBreakerFactory.create();
 
 // Invoke as closure.
 circuitBreaker.execute(
-	function() {
-		return( upstreamResource.load() );
-	}
+    function() {
+        return( upstreamResource.load() );
+    }
 );
 
 // Invoke as closure with context and arguments.
 circuitBreaker.executeInContext(
-	{ /* Context object. */ },
-	function( param1, param2 ) {
-		return( this.load( param1, param2 ) );
-	},
-	[ "arg1", "arg2" ]
+    { /* Context object. */ },
+    function( param1, param2 ) {
+        return( this.load( param1, param2 ) );
+    },
+    [ "arg1", "arg2" ]
 );
 
 // Invoke as method on an object.
@@ -90,24 +90,24 @@ Every one of the following settings is _optional_:
 
 _**NOTE**: The duration of the rolling metrics window will be `bucketCount * bucketDuration`.
 This is also the amount of time that the Circuit Breaker will **remain opened** after 
-failing before allowing a "health check" request to execute.
+failing before allowing a "health check" request to execute._
 
 ```js
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	requestTimeout: 5000,
-	volumeThreshold: 10,
-	failureThreshold: 10, // Percent (as in 1 failure in 10 responses trips the circuit).
-	activeThreshold: 50,
-	isFailure: function( error ) {
-		return( ! is404( error ) );
-	},
-	fallback: { /* Fallback value. */ },
-	monitor: function( eventType, eventData ) {
-		console.log( eventType, eventData );
-	},
-	bucketCount: 30,
-	bucketDuration: 1000
+    id: "Remote API",
+    requestTimeout: 5000,
+    volumeThreshold: 10,
+    failureThreshold: 10, // Percent (as in 1 failure in 10 responses trips the circuit).
+    activeThreshold: 50,
+    isFailure: function( error ) {
+        return( ! is404( error ) );
+    },
+    fallback: { /* Fallback value. */ },
+    monitor: function( eventType, eventData ) {
+        console.log( eventType, eventData );
+    },
+    bucketCount: 30,
+    bucketDuration: 1000
 });
 ```
 
@@ -124,8 +124,8 @@ the Circuit Breaker is created:
 
 ```js
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	fallback: { /* Fallback value. */ }
+    id: "Remote API",
+    fallback: { /* Fallback value. */ }
 });
 ```
 
@@ -134,22 +134,22 @@ global fallback value was provided):
 
 ```js
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	fallback: { /* Fallback value. */ }
+    id: "Remote API",
+    fallback: { /* Fallback value. */ }
 });
 
 circuitBreaker
-	.execute(
-		function() {
-			throw( new Error( "Network Error" ) );
-		},
-		{ /* Local fallback value. */ }
-	)
-	.then(
-		function( result ) {
-			console.log( result ); // Will be LOCAL fallback value.
-		}
-	)
+    .execute(
+        function() {
+            throw( new Error( "Network Error" ) );
+        },
+        { /* Local fallback value. */ }
+    )
+    .then(
+        function( result ) {
+            console.log( result ); // Will be LOCAL fallback value.
+        }
+    )
 ;
 ```
 
@@ -161,10 +161,10 @@ you can provide a logging Function as the `monitor` argument:
 
 ```js
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	monitor: logEvent( eventType, eventData ) {
-		console.log( eventType, eventData );
-	}
+    id: "Remote API",
+    monitor: function logEvent( eventType, eventData ) {
+        console.log( eventType, eventData );
+    }
 });
 ```
 
@@ -192,26 +192,26 @@ the `logEvent()` method:
 ```js
 class MyMonitor extends AbstractLoggingMonitor {
 
-	constructor( statsD ) {
+    constructor( statsD ) {
 
-		super();
-		this._statsD = statsD;
+        super();
+        this._statsD = statsD;
 
-	}
+    }
 
-	logEvent( eventType, eventData ) {
+    logEvent( eventType, eventData ) {
 
-		stats.increment( `circuit-breaker.${ eventType }` );
+        stats.increment( `circuit-breaker.${ eventType }` );
 
-	}
+    }
 
 }
 
 // ....
 
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	monitor: new MyMonitor( stats )
+    id: "Remote API",
+    monitor: new MyMonitor( stats )
 });
 ```
 
@@ -219,22 +219,22 @@ However, if you extend the `Monitor` class, you can override any of the `log*` m
 
 ```js
 class MyMonitor extends Monitor {
-	
-	logClosed( stateSnapshot ) {
-		/* ... */
-	}
+    
+    logClosed( stateSnapshot ) {
+        /* ... */
+    }
 
-	logOpened( stateSnapshot ) {
-		/* ... */
-	}
+    logOpened( stateSnapshot ) {
+        /* ... */
+    }
 
 }
 
 // ....
 
 var circuitBreaker = CircuitBreakerFactory.create({
-	id: "Remote API",
-	monitor: new MyMonitor()
+    id: "Remote API",
+    monitor: new MyMonitor()
 });
 ```
 
