@@ -124,6 +124,33 @@ describe( "Testing lib.CircuitBreakerFactory", function() {
 		expect( event.data.stateSnapshot.settings.activeThreshold ).to.equal( activeThreshold );
 
 	});
+
+	it( "should log events to the given monitor function.", function() {
+
+		var id = "Tester";
+		var events = [];
+		var circuitBreaker = CircuitBreakerFactory.create({
+			id: id,
+			monitor: function logItem( eventType, eventData ) {
+
+				events.push({
+					type: eventType,
+					data: eventData
+				});
+
+			}
+		});
+
+		circuitBreaker.execute(
+			function() {
+				return( "Hello world" );
+			}
+		);
+
+		expect( events[ 0 ].type ).to.equal( "emit" );
+		expect( events[ 0 ].data.stateSnapshot.id ).to.equal( id );
+
+	});
 });
 
 
