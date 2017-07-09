@@ -39,7 +39,7 @@ circuitBreaker.execute(
 
 // Invoke as closure with context and arguments.
 circuitBreaker.executeInContext(
-    { /* Context object. */ },
+    upstreamResource,
     function( param1, param2 ) {
         return( this.load( param1, param2 ) );
     },
@@ -153,6 +153,9 @@ circuitBreaker
 ;
 ```
 
+If the fallback value is a Function and the execution was provided with a _context_ and
+_arguments_, the same _context_ and _arguments_ will be used to invoke the Fallback.
+
 ## Logging And Monitoring
 
 By default, the Circuit Breaker quietly discards all internal events. However, you will
@@ -241,18 +244,70 @@ var circuitBreaker = CircuitBreakerFactory.create({
 The `Monitor` class provides the following default, no-op (No Operation) methods, which
 means you only have to override the ones that are meaningful to your application:
 
-* `logClosed( stateSnapshot )`
-* `logExecute( stateSnapshot )`
-* `logEmit( stateSnapshot )`
-* `logFailure( stateSnapshot, duration, error )`
-* `logFallbackEmit( stateSnapshot )`
-* `logFallbackFailure( stateSnapshot, error )`
-* `logFallbackMissing( stateSnapshot )`
-* `logFallbackSuccess( stateSnapshot )`
-* `logOpened( stateSnapshot )`
-* `logShortCircuited( stateSnapshot, error )`
-* `logSuccess( stateSnapshot, duration )`
-* `logTimeout( stateSnapshot, duration, error )`
+* `logClosed( stateSnapshot )` -- I log the point at which the Circuit Breaker state 
+  moves from opened to closed.
+* `logExecute( stateSnapshot )` -- I log the point at which the execution is accepted by
+  the state of the Circuit Breaker and the underlying command is about to be invoked.
+* `logEmit( stateSnapshot )` -- I log the point at which the request has entered the 
+  Circuit Breaker but has not yet been approved for execution.
+* `logFailure( stateSnapshot, duration, error )` -- I log the point at which the 
+  execution has ended in error. This only accounts for non-Circuit Breaker errors 
+  (see, logTimeout() and logShortCircuited() events).
+* `logFallbackEmit( stateSnapshot )` -- I log the point at which a non-successful 
+  execution (due to error, timeout, or short-circuiting) is being evaluated for a
+  fallback response.
+* `logFallbackFailure( stateSnapshot, error )` -- I log the point at which an existing
+  fallback function resolved in error.
+* `logFallbackMissing( stateSnapshot )` -- I log the point at which a failed execution 
+  has no fallback defined.
+* `logFallbackSuccess( stateSnapshot )` -- I log the point at which a fallback value has
+  successfully stood-in for a failed or bypassed execution.
+* `logOpened( stateSnapshot )` -- I log the point at which the Circuit Breaker state 
+  moves from closed to opened.
+* `logShortCircuited( stateSnapshot, error )` -- I log the point at which an execution
+  is bypassed because the Circuit Breaker is currently in an opened state.
+* `logSuccess( stateSnapshot, duration )` -- I log the point at which an execution has
+  resolved successfully.
+* `logTimeout( stateSnapshot, duration, error )` -- I log the point at which a long-
+  running execution has been explicitly timed-out in error.
+
+The `stateSnapshot` object passed to the `Monitor` methods (and to the 
+`AbstractLoggingMonitor` `logEvent()` method) contains identification and metric 
+information about the State being used to power the Circuit Breaker. Since one Circuit
+Breaker can share state with another Circuit Breaker, there's not too much sense in 
+identifying the Circuit Breakers themselves; as such, the State becomes the meaningful
+information for logging and monitoring. Each `stateSnapshot` provided by the default 
+implementation uses the following structure:
+
+```json
+{
+	"id": "Circuit Breaker for API",
+	"closed": true,
+	"settings": {
+		"requestTimeout": 0,
+		"volumeThreshold": 0,
+		"failureThreshold": 0,
+		"activeThreshold": 0
+	},
+	"metrics": {
+		"emit": 0,
+		"execute": 0,
+		"success": 0,
+		"failure": 0,
+		"timeout": 0
+	},
+	"totalMetrics": {
+		"emit": 0,
+		"execute": 0,
+		"success": 0,
+		"failure": 0,
+		"timeout": 0
+	},
+	"current": {
+		"activeRequestCount": 0
+	}
+}
+```
 
 ## Package Exports
 
