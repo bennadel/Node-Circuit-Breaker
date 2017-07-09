@@ -375,6 +375,33 @@ var state = new CustomStateImplementation();
 var circuitBreaker = new CircuitBreaker( state [, globalFallback] );
 ```
 
+### Guarantees Around Synchronous State Tracking
+
+Since the Circuit Breaker generates and returns Promises around the execution of black-
+boxed commands, many of the methods on the `State` instance will be invoked 
+asynchronously. However, the following series of methods are _guaranteed to be invoked
+synchronously_ within the same tick of the Node.js event loop:
+
+* `trackEmit()`
+* `isOpened()`
+* `canPerformHealthCheck()` - called only if `isOpened()` returns `true`.
+* `trackExecute()`
+
+Since Node.js runs in a single process, you can assume that these four methods will be
+called without any race conditions.
+
+### All Metrics Should Be Stored In-Memory
+
+If you are building your own `State` implementation, you may be tempted to share metrics
+across different Node.js processes (or machines). For example, you may be tempted to 
+store metrics in a shared Redis instance that can be consumed be every instance of a 
+Circuit Breaker that proxies a single resource. **DO NOT DO THIS**. Not only does the 
+Circuit Breaker expect `State` methods to run synchronously; but, trying to share state 
+offers no real value-add. Since the failure-tracking is based on _percentages_, sharing
+state won't make the percentages more accurate. In fact, sharing state across processes 
+could lead to false-positives if a particular process or machine is having issues (such
+as configuration issues that don't affect other processes or machines).
+
 ## Package Exports
 
 This Circuit Breaker package exports the following public members:
