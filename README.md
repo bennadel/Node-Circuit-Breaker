@@ -309,6 +309,72 @@ implementation uses the following structure:
 }
 ```
 
+## Building Your Own `State` Implementation
+
+The Circuit Breaker is designed to be a composite of several different classes all 
+working together to accomplish one goal. The reason for this composition was to allow
+custom implementations to be designed if desired. Ideally, if you want a custom 
+implementation, the only class you should have to provide is the `State` class. The
+`CircuitBreaker` class manages the control-flow; but, it uses the `State` implementation
+to power that control-flow. If you want to provide your own `State` implementation, you 
+have to provide a class that exposes the following methods:
+
+* `canPerformHealthCheck()`
+* `getSnapshot()`
+* `isOpened()`
+* `isClosed()`
+* `getTimeout()`
+* `trackExecute()`
+* `trackEmit()`
+* `trackFailure( duration, error )`
+* `trackFallbackEmit()`
+* `trackFallbackFailure( error )`
+* `trackFallbackMissing()`
+* `trackFallbackSuccess()`
+* `trackShortCircuited( error )`
+* `trackSuccess( duration )`
+* `trackTimeout( duration, error )`
+
+What you do inside these methods is completely up to you. But, they have to exist since
+the `CircuitBreaker` is going to call them. The general control-flow for the 
+`CircuitBreaker` follows this plan:
+
+* Top-level `execute*()` method is called.
+* Call `trackEmit()`.
+* Check to see if `isOpened()`.
+* If opened:
+* * Check to see if `canPerformHealthCheck()`
+* * * If can perform health check, proceed to execution.
+* If can execute command:
+* * Call `trackExecute()`.
+* * Setup timeout timer using `getTimeout()`.
+* * Invoke underlying command.
+* On resolution:
+* * Call `trackSuccess()`.
+* On rejection:
+* * Check type of error:
+* * * If `OpenError` call `trackShortCircuited()`.
+* * * If `TimeoutError` call `trackTimeout()`.
+* * * Otherwise call `trackFailure()`.
+* * Call `trackFallbackEmit()`.
+* * Check to see if a fallback was provided (locally or globally).
+* * * If fallback was provided:
+* * * * Execute fallback.
+* * * * On resolution:
+* * * * * Call `trackFallbackSuccess()`.
+* * * * On rejection:
+* * * * * Call `trackFallbackFailure()`.
+* * * If no fallback was provided:
+* * * * Call `trackFallbackMissing()`.
+
+Once you have a custom `State` implementation, you can construct a `CircuitBreaker`:
+
+```js
+var state = new CustomStateImplementation();
+
+var circuitBreaker = new CircuitBreaker( state [, globalFallback] );
+```
+
 ## Package Exports
 
 This Circuit Breaker package exports the following public members:
@@ -316,6 +382,7 @@ This Circuit Breaker package exports the following public members:
 * `OpenError`
 * `StateError`
 * `TimeoutError`
+* `Metrics`
 * `AbstractLoggingMonitor`
 * `Monitor`
 * `State`
