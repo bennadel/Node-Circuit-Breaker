@@ -3,6 +3,8 @@
 
 by [Ben Nadel][bennadel] (on [Google+][googleplus])
 
+**[View on npmjs.com][npmjs]**
+
 This is a **Node.js** implementation of the **Circuit Breaker** pattern as popularized 
 in [Michael T. Nygard's book - Release It!][release-it]. The Circuit Breaker is intended 
 to proxy the consumption of upstream resources such that failures in the upstream resource
@@ -484,4 +486,5 @@ This Circuit Breaker package exports the following public members:
 
 [bennadel]: http://www.bennadel.com
 [googleplus]: https://plus.google.com/108976367067760160494?rel=author
+[npmjs]: https://www.npmjs.com/package/@bennadel/circuit-breaker
 [release-it]: https://www.bennadel.com/blog/3162-release-it-design-and-deploy-production-ready-software-by-michael-t-nygard.htm
