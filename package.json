@@ -1,7 +1,11 @@
 {
-  "name": "node_circuit_breaker",
+  "name": "@bennadel/circuit-breaker",
   "version": "0.0.1",
-  "description": "A flexible circuit breaker for Node.js.",
+  "description": "A flexible circuit breaker for Node.js (requires ES6 class modules).",
+  "repository": {
+    "type": "git",
+    "url" : "https://github.com/bennadel/Node-Circuit-Breaker.git"
+  },
   "main": "./lib/index.js",
   "scripts": {
     "test": "mocha"
@@ -11,7 +15,8 @@
     "breaker",
     "circuit breaker",
     "availability",
-    "reliability"
+    "reliability",
+    "fail fast"
   ],
   "author": "Ben Nadel",
   "license": "ISC",

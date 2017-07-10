@@ -28,6 +28,8 @@ The easiest way to create a Circuit Breaker is to create one with no settings at
 Doing so will create a Circuit Breaker with "good" defaults:
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.create();
 
 // Invoke as closure.
@@ -93,6 +95,8 @@ This is also the amount of time that the Circuit Breaker will **remain opened** 
 failing before allowing a "health check" request to execute._
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.create({
     id: "Remote API",
     requestTimeout: 5000,
@@ -123,6 +127,8 @@ it should return either a Promise or a static value. Fallback values can be defi
 the Circuit Breaker is created:
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.create({
     id: "Remote API",
     fallback: { /* Fallback value. */ }
@@ -133,6 +139,8 @@ But, they can also be provided at the time of execution (regardless of whether o
 global fallback value was provided):
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.create({
     id: "Remote API",
     fallback: { /* Fallback value. */ }
@@ -181,6 +189,8 @@ Since this is a passive Circuit Breaker (that never opens), there are fewer sett
   logging).
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.createPassive({
     id: "Remote API",
     monitor: function logEvent( eventType, eventData ) {
@@ -209,6 +219,8 @@ probably want to log Errors and record StatsD metrics in your application. To do
 you can provide a logging Function as the `monitor` argument:
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 var circuitBreaker = CircuitBreakerFactory.create({
     id: "Remote API",
     monitor: function logEvent( eventType, eventData ) {
@@ -239,6 +251,9 @@ class. If you extend the `AbstractLoggingMonitor` base class, you only have to o
 the `logEvent()` method:
 
 ```js
+var AbstractLoggingMonitor = require( "@bennadel/circuit-breaker" ).AbstractLoggingMonitor;
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+
 class MyMonitor extends AbstractLoggingMonitor {
 
     constructor( statsD ) {
@@ -267,6 +282,9 @@ var circuitBreaker = CircuitBreakerFactory.create({
 However, if you extend the `Monitor` class, you can override any of the `log*` methods:
 
 ```js
+var CircuitBreakerFactory = require( "@bennadel/circuit-breaker" ).CircuitBreakerFactory;
+var Monitor = require( "@bennadel/circuit-breaker" ).Monitor;
+
 class MyMonitor extends Monitor {
     
     logClosed( stateSnapshot ) {
@@ -416,6 +434,8 @@ the `CircuitBreaker` is going to call them. The general control-flow for the
 Once you have a custom `State` implementation, you can construct a `CircuitBreaker`:
 
 ```js
+var CircuitBreaker = require( "@bennadel/circuit-breaker" ).CircuitBreaker;
+
 var state = new CustomStateImplementation();
 
 var circuitBreaker = new CircuitBreaker( state [, globalFallback] );
