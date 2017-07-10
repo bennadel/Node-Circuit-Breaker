@@ -156,6 +156,52 @@ circuitBreaker
 If the fallback value is a Function and the execution was provided with a _context_ and
 _arguments_, the same _context_ and _arguments_ will be used to invoke the Fallback.
 
+## Circuit Breakers Are Scary -- What If I Get It Wrong?
+
+To be honest, it can be scary - the idea of putting something into production that
+will purposefully block calls to proxied systems. If you pick an error threshold that's
+too low, you may start blocking requests too quickly. If you pick an active threshold 
+that's too high, you may clobber the upstream resource.
+
+Luckily, you don't have to dive right into the deep-end. Instead, you can deploy a 
+**passive Circuit Breaker** that will log all of the traffic; but, _will never fail open_,
+no matter how unhealthy the upstream resource becomes. This way, you can spend some time
+passively gathering metrics about your API usage (including counts, durations, and 
+errors) before switching over to an active Circuit Breaker with tailored settings.
+
+Since this is a passive Circuit Breaker (that never opens), there are fewer settings:
+
+* `id` - The unique identifier of the underlying state instance, which is used for 
+  logging.
+* `isFailure` - The function that determines if the given failure is an error; or, if 
+  it should be classified as a success (such as a 404 response).
+* `fallback` - The global fallback to be used for all executions in the Circuit Breaker 
+  (which can be overridden locally with each execution).
+* `monitor` - The monitor -- Function or instance -- for external logging (ex, StatsD 
+  logging).
+
+```js
+var circuitBreaker = CircuitBreakerFactory.createPassive({
+    id: "Remote API",
+    monitor: function logEvent( eventType, eventData ) {
+        // Log statsD metrics about count and duration.
+        // Log errors.
+    }
+});
+
+// This error will result in a rejected promise; but, the Circuit Breaker will always
+// remain closed, allowing requests to be executed.
+circuitBreaker.execute(
+    function() {
+        throw( new Error( "Network Error" ) );
+    }
+);
+```
+
+Once you've had a chance to monitor your Circuit Breakers, you can start switching your
+`.createPassive()` factory calls with `.create()` factory calls using settings that you
+know correspond to the collected base-line of metrics. And, you can sleep well at night.
+
 ## Logging And Monitoring
 
 By default, the Circuit Breaker quietly discards all internal events. However, you will

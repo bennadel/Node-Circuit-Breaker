@@ -15,7 +15,7 @@ var bucketCount = 2;
 var bucketDuration = 1000;
 var clock = new StaticClock();
 var metrics = null;
-var monitor = new InMemoryMonitor();
+var monitor = null
 var state = null;
 var error = new Error( "testing" );
 var invalidBranchError = new Error( "test should not reach this branch." );
@@ -33,7 +33,7 @@ describe( "Testing lib.state.State", function() {
 		function() {
 
 			clock.setTickCount( 0 );
-			monitor.clearEvents();
+			monitor = new InMemoryMonitor();
 			metrics = new Metrics( bucketCount, bucketDuration, clock );
 			state = new State({
 				id: "testingState",
@@ -165,6 +165,11 @@ describe( "Testing lib.state.State", function() {
 		state.trackFallbackEmit();
 		state.trackFallbackMissing();
 		expectEvents([ "emit", "execute", "timeout", "fallbackEmit", "fallbackMissing" ]);
+
+		state.trackEmit();
+		state.trackExecute();
+		state.trackFailure( 1, nonErrorError );
+		expectEvents([ "emit", "execute", "success" ]);
 
 		// Get to active threshold.
 		for ( var i = 0 ; i < activeThreshold ; i++ ) {

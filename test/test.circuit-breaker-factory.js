@@ -54,6 +54,17 @@ describe( "Testing lib.CircuitBreakerFactory", function() {
 
 	});
 
+	it( "should create a passive circuit breaker.", function() {
+
+		var monitor = new InMemoryMonitor();
+		var circuitBreaker = CircuitBreakerFactory.createPassive({
+			monitor: monitor
+		});
+
+		expect( circuitBreaker.isClosed() ).to.be.true;
+
+	});
+
 	it( "should create instances with local fallback overrides.", function( done ) {
 
 		var globalFallback = "global fallback";
@@ -91,7 +102,7 @@ describe( "Testing lib.CircuitBreakerFactory", function() {
 
 	});
 
-	it( "should log events to the given monitor.", function() {
+	it( "should log events to the given monitor.", function( done ) {
 
 		var id = "Tester";
 		var requestTimeout = 5000;
@@ -109,23 +120,32 @@ describe( "Testing lib.CircuitBreakerFactory", function() {
 			monitor: monitor
 		});
 
-		circuitBreaker.execute(
-			function() {
-				return( "Hello world" );
-			}
-		);
+		circuitBreaker
+			.execute(
+				function() {
+					return( "Hello world" );
+				}
+			)
+			.then(
+				function() {
 
-		var event = monitor.getEvents().shift();
-		expect( event.type ).to.equal( "emit" );
-		expect( event.data.stateSnapshot.id ).to.equal( id );
-		expect( event.data.stateSnapshot.settings.requestTimeout ).to.equal( requestTimeout );
-		expect( event.data.stateSnapshot.settings.volumeThreshold ).to.equal( volumeThreshold );
-		expect( event.data.stateSnapshot.settings.failureThreshold ).to.equal( failureThreshold );
-		expect( event.data.stateSnapshot.settings.activeThreshold ).to.equal( activeThreshold );
+					var event = monitor.getEvents().shift();
+					expect( event.type ).to.equal( "emit" );
+					expect( event.data.stateSnapshot.id ).to.equal( id );
+					expect( event.data.stateSnapshot.settings.requestTimeout ).to.equal( requestTimeout );
+					expect( event.data.stateSnapshot.settings.volumeThreshold ).to.equal( volumeThreshold );
+					expect( event.data.stateSnapshot.settings.failureThreshold ).to.equal( failureThreshold );
+					expect( event.data.stateSnapshot.settings.activeThreshold ).to.equal( activeThreshold );
+					done();
+
+				},
+				done
+			)
+		;
 
 	});
 
-	it( "should log events to the given monitor function.", function() {
+	it( "should log events to the given monitor function.", function( done ) {
 
 		var id = "Tester";
 		var events = [];
@@ -141,14 +161,23 @@ describe( "Testing lib.CircuitBreakerFactory", function() {
 			}
 		});
 
-		circuitBreaker.execute(
-			function() {
-				return( "Hello world" );
-			}
-		);
+		circuitBreaker
+			.execute(
+				function() {
+					return( "Hello world" );
+				}
+			)
+			.then(
+				function() {
 
-		expect( events[ 0 ].type ).to.equal( "emit" );
-		expect( events[ 0 ].data.stateSnapshot.id ).to.equal( id );
+					expect( events[ 0 ].type ).to.equal( "emit" );
+					expect( events[ 0 ].data.stateSnapshot.id ).to.equal( id );
+					done();
+					
+				},
+				done
+			)
+		;
 
 	});
 });
